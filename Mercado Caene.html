@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mercado Autônomo CAENE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #00b4db, #0083b0, #00b4db);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #00b4db, #0083b0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .floating-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            font-size: 12px;
+            background-color: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .admin-panel {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        .blur-effect {
+            filter: blur(5px);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/5561981271648" class="floating-button bg-green-500 text-white w-14 h-14 rounded-full flex items-center justify-center text-2xl hover:bg-green-600 transition-colors">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-store text-3xl"></i>
+                <h1 class="text-2xl font-bold">Mercado CAENE</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="cartButton" class="relative text-white hover:text-gray-200">
+                    <i class="fas fa-shopping-cart text-2xl"></i>
+                    <span id="cartBadge" class="cart-badge">0</span>
+                </button>
+                <button id="adminLoginButton" class="bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-gray-100">
+                    Admin
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Product Categories -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold gradient-text mb-4">Nossos Produtos</h2>
+            <div class="flex space-x-2 overflow-x-auto pb-2">
+                <button class="category-btn px-4 py-2 bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200 transition-colors" data-category="all">
+                    Todos
+                </button>
+                <button class="category-btn px-4 py-2 bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200 transition-colors" data-category="energeticos">
+                    Energéticos
+                </button>
+                <button class="category-btn px-4 py-2 bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200 transition-colors" data-category="doces">
+                    Doces
+                </button>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div id="productsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Products will be loaded here dynamically -->
+        </div>
+    </main>
+
+    <!-- Cart Modal -->
+    <div id="cartModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold gradient-text">Seu Carrinho</h3>
+                    <button id="closeCartModal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div id="cartItemsContainer" class="space-y-4 mb-4">
+                    <!-- Cart items will be loaded here -->
+                    <p class="text-gray-500 text-center py-4">Seu carrinho está vazio</p>
+                </div>
+                
+                <div class="border-t pt-4">
+                    <div class="flex justify-between mb-2">
+                        <span class="font-medium">Subtotal:</span>
+                        <span id="cartSubtotal" class="font-bold">R$ 0,00</span>
+                    </div>
+                    
+                    <div id="customerInfoSection" class="mt-4 hidden">
+                        <h4 class="font-medium mb-2">Informações do Cliente</h4>
+                        <div class="space-y-3">
+                            <div>
+                                <label for="matricula" class="block text-sm font-medium text-gray-700">Matrícula</label>
+                                <input type="text" id="matricula" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="firstName" class="block text-sm font-medium text-gray-700">Primeiro Nome</label>
+                                <input type="text" id="firstName" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="paymentSection" class="mt-6 hidden">
+                        <h4 class="font-medium mb-2">Pagamento via PIX</h4>
+                        <div class="bg-gray-100 p-4 rounded-lg mb-3">
+                            <p class="text-sm text-gray-700 mb-2">Chave PIX: <span class="font-medium">caene@ene.unb.br</span></p>
+                            <div id="qrcodeContainer" class="flex justify-center mb-3"></div>
+                            <p class="text-center font-bold text-lg" id="totalAmount"></p>
+                        </div>
+                        <button id="confirmPurchase" class="w-full gradient-bg text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity">
+                            Confirmar Compra
+                        </button>
+                    </div>
+                    
+                    <button id="proceedToCheckout" class="w-full gradient-bg text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity mt-4">
+                        Finalizar Compra
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Purchase Confirmation Modal -->
+    <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                    <i class="fas fa-check text-green-600"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Compra realizada com sucesso!</h3>
+                <p class="text-gray-500 mb-6">Agradecemos pela compra!</p>
+                <button id="closeConfirmationModal" class="gradient-bg text-white py-2 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="adminLoginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold gradient-text">Acesso Administrativo</h3>
+                <button id="closeAdminLoginModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label for="adminEmail" class="block text-sm font-medium text-gray-700">Usuário</label>
+                    <input type="email" id="adminEmail" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="caene@ene.unb.br">
+                </div>
+                <div>
+                    <label for="adminPassword" class="block text-sm font-medium text-gray-700">Senha</label>
+                    <input type="password" id="adminPassword" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="••••••••">
+                </div>
+                
+                <button id="adminLoginSubmit" class="w-full gradient-bg text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity mt-4">
+                    Entrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 admin-panel flex flex-col">
+            <div class="bg-white shadow-md p-4 flex justify-between items-center">
+                <h2 class="text-xl font-bold gradient-text">Painel Administrativo</h2>
+                <button id="closeAdminPanel" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            
+            <div class="flex flex-1 overflow-hidden">
+                <!-- Admin Sidebar -->
+                <div class="w-64 bg-gray-800 text-white p-4 flex flex-col">
+                    <div class="space-y-1">
+                        <button class="admin-tab-btn w-full text-left px-4 py-2 rounded bg-gray-700 font-medium" data-tab="products">
+                            <i class="fas fa-box-open mr-2"></i> Produtos
+                        </button>
+                        <button class="admin-tab-btn w-full text-left px-4 py-2 rounded hover:bg-gray-700 font-medium" data-tab="sales">
+                            <i class="fas fa-chart-line mr-2"></i> Vendas
+                        </button>
+                        <button class="admin-tab-btn w-full text-left px-4 py-2 rounded hover:bg-gray-700 font-medium" data-tab="stats">
+                            <i class="fas fa-chart-pie mr-2"></i> Estatísticas
+                        </button>
+                    </div>
+                    <div class="mt-auto pt-4 border-t border-gray-700">
+                        <button id="adminLogout" class="w-full text-left px-4 py-2 rounded hover:bg-gray-700 font-medium text-red-400">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Sair
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Admin Content -->
+                <div class="flex-1 bg-gray-100 p-6 overflow-y-auto">
+                    <!-- Products Management Tab -->
+                    <div id="productsTab" class="tab-content active">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-2xl font-bold gradient-text">Gerenciamento de Produtos</h3>
+                            <button id="addProductBtn" class="gradient-bg text-white px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity">
+                                <i class="fas fa-plus mr-2"></i> Adicionar Produto
+                            </button>
+                        </div>
+                        
+                        <div id="productsAdminContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- Admin product cards will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Sales Management Tab -->
+                    <div id="salesTab" class="tab-content">
+                        <h3 class="text-2xl font-bold gradient-text mb-6">Histórico de Vendas</h3>
+                        
+                        <div class="bg-white shadow rounded-lg overflow-hidden mb-6">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matrícula</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Itens</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="salesTableBody" class="bg-white divide-y divide-gray-200">
+                                    <!-- Sales will be loaded here -->
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">Nenhuma venda registrada</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Statistics Tab -->
+                    <div id="statsTab" class="tab-content">
+                        <h3 class="text-2xl font-bold gradient-text mb-6">Estatísticas de Vendas</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                            <div class="bg-white p-6 rounded-lg shadow">
+                                <div class="flex items-center">
+                                    <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
+                                        <i class="fas fa-shopping-cart text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Total de Vendas</p>
+                                        <p id="totalSales" class="text-2xl font-bold">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-6 rounded-lg shadow">
+                                <div class="flex items-center">
+                                    <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
+                                        <i class="fas fa-boxes text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Itens Vendidos</p>
+                                        <p id="totalItemsSold" class="text-2xl font-bold">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-6 rounded-lg shadow">
+                                <div class="flex items-center">
+                                    <div class="p-3 rounded-full bg-purple-100 text-purple-600 mr-4">
+                                        <i class="fas fa-money-bill-wave text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Receita Total</p>
+                                        <p id="totalRevenue" class="text-2xl font-bold">R$ 0,00</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h4 class="text-lg font-medium mb-4">Produtos Mais Vendidos</h4>
+                            <div id="topProductsChart" class="h-64">
+                                <!-- Chart will be rendered here -->
+                                <p class="text-gray-500 text-center py-8">Dados insuficientes para exibir o gráfico</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Product Modal -->
+    <div id="productModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="productModalTitle" class="text-xl font-bold gradient-text">Adicionar Produto</h3>
+                <button id="closeProductModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="productForm" class="space-y-4">
+                <input type="hidden" id="productId">
+                
+                <div>
+                    <label for="productName" class="block text-sm font-medium text-gray-700">Nome do Produto</label>
+                    <input type="text" id="productName" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                
+                <div>
+                    <label for="productPrice" class="block text-sm font-medium text-gray-700">Preço (R$)</label>
+                    <input type="number" id="productPrice" step="0.01" min="0" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                
+                <div>
+                    <label for="productCategory" class="block text-sm font-medium text-gray-700">Categoria</label>
+                    <select id="productCategory" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
+                        <option value="energeticos">Energético</option>
+                        <option value="doces">Doce</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="productDescription" class="block text-sm font-medium text-gray-700">Descrição</label>
+                    <textarea id="productDescription" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
+                </div>
+                
+                <div>
+                    <label for="productImage" class="block text-sm font-medium text-gray-700">Imagem do Produto</label>
+                    <input type="file" id="productImage" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    <p class="mt-1 text-sm text-gray-500">Deixe em branco para usar a imagem padrão</p>
+                </div>
+                
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" id="cancelProduct" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-300">
+                        Cancelar
+                    </button>
+                    <button type="submit" id="saveProduct" class="gradient-bg text-white px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity">
+                        Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Sample product data
+        const products = [
+            // Energéticos
+            {
+                id: 1,
+                name: "Monster Original",
+                price: 9.00,
+                category: "energeticos",
+                description: "Sabor original com muita força e energia",
+                image: "https://images.tcdn.com.br/img/img_prod/1224045/energetico_original_monster_473ml_2639_1_d43427fc0da77ef1890cf474da08ca59.jpg"
+            },
+            {
+                id: 2,
+                name: "Monster Ultra",
+                price: 9.00,
+                category: "energeticos",
+                description: "Zero calorias e zero açúcar",
+                image: "https://andinacocacola.vtexassets.com/arquivos/ids/155478/70847022206_01.jpg?v=637722480093400000"
+            },
+            {
+                id: 3,
+                name: "Monster Mango Loco",
+                price: 9.00,
+                category: "energeticos",
+                description: "Sabor doce com toque de suco de manga",
+                image: "https://andinacocacola.vtexassets.com/arquivos/ids/157997-800-450?v=638465576871630000&width=800&height=450&aspect=true"
+            },
+            {
+                id: 4,
+                name: "Monster Ultra Watermelon",
+                price: 9.00,
+                category: "energeticos",
+                description: "Sabor intenso de melancia",
+                image: "https://via.placeholder.com/300x300?text=Monster+Ultra+Watermelon"
+            },
+            {
+                id: 5,
+                name: "Monster Pipeline Punch",
+                price: 9.00,
+                category: "energeticos",
+                description: "Goiaba, laranja e maracujá",
+                image: "https://via.placeholder.com/300x300?text=Monster+Pipeline+Punch"
+            },
+            {
+                id: 6,
+                name: "Monster Pacific Punch",
+                price: 9.00,
+                category: "energeticos",
+                description: "Tropical, leve, suave e doce",
+                image: "https://via.placeholder.com/300x300?text=Monster+Pacific+Punch"
+            },
+            // Doces
+            {
+                id: 7,
+                name: "Paçoquinha",
+                price: 1.00,
+                category: "doces",
+                description: "Tradicional doce de amendoim",
+                image: "https://via.placeholder.com/300x300?text=Pa%C3%A7oquinha"
+            },
+            {
+                id: 8,
+                name: "KitKat Dark",
+                price: 4.50,
+                category: "doces",
+                description: "Chocolate amargo com wafer crocante",
+                image: "https://via.placeholder.com/300x300?text=KitKat+Dark"
+            },
+            {
+                id: 9,
+                name: "KitKat Tradicional",
+                price: 4.50,
+                category: "doces",
+                description: "Chocolate ao leite com wafer crocante",
+                image: "https://via.placeholder.com/300x300?text=KitKat+Tradicional"
+            },
+            {
+                id: 10,
+                name: "Jujuba Gumetes",
+                price: 1.50,
+                category: "doces",
+                description: "Sabores: iogurte e frutas",
+                image: "https://via.placeholder.com/300x300?text=Jujuba+Gumetes"
+            },
+            {
+                id: 11,
+                name: "Bis Extra Black",
+                price: 4.50,
+                category: "doces",
+                description: "Chocolate amargo com recheio cremoso",
+                image: "https://via.placeholder.com/300x300?text=Bis+Extra+Black"
+            },
+            {
+                id: 12,
+                name: "Bis Extra",
+                price: 4.50,
+                category: "doces",
+                description: "Chocolate ao leite com recheio cremoso",
+                image: "https://via.placeholder.com/300x300?text=Bis+Extra"
+            },
+            {
+                id: 13,
+                name: "Bom Bom Limão",
+                price: 4.00,
+                category: "doces",
+                description: "Recheio cremoso de limão",
+                image: "https://via.placeholder.com/300x300?text=Bom+Bom+Lim%C3%A3o"
+            },
+            {
+                id: 14,
+                name: "Bom Bom Chocolate",
+                price: 4.00,
+                category: "doces",
+                description: "Recheio de chocolate amargo",
+                image: "https://via.placeholder.com/300x300?text=Bom+Bom+Chocolate"
+            },
+            {
+                id: 15,
+                name: "Bom Bom Maracujá",
+                price: 4.00,
+                category: "doces",
+                description: "Recheio de maracujá",
+                image: "https://via.placeholder.com/300x300?text=Bom+Bom+Maracuj%C3%A1"
+            },
+            {
+                id: 16,
+                name: "Pão de Mel",
+                price: 5.00,
+                category: "doces",
+                description: "Sabor tradicional e café",
+                image: "https://via.placeholder.com/300x300?text=P%C3%A3o+de+Mel"
+            },
+            {
+                id: 17,
+                name: "Geladinho",
+                price: 1.50,
+                category: "doces",
+                description: "Sabores variados",
+                image: "https://via.placeholder.com/300x300?text=Geladinho"
+            },
+            {
+                id: 18,
+                name: "TicTac",
+                price: 4.00,
+                category: "doces",
+                description: "Mix de sabores",
+                image: "https://via.placeholder.com/300x300?text=TicTac"
+            },
+            {
+                id: 19,
+                name: "Snickers",
+                price: 5.00,
+                category: "doces",
+                description: "Chocolate, caramelo e amendoim",
+                image: "https://via.placeholder.com/300x300?text=Snickers"
+            },
+            {
+                id: 20,
+                name: "Snickers Dark",
+                price: 5.00,
+                category: "doces",
+                description: "Chocolate amargo, caramelo e amendoim",
+                image: "https://via.placeholder.com/300x300?text=Snickers+Dark"
+            },
+            {
+                id: 21,
+                name: "Snickers Pé de Moleque",
+                price: 5.00,
+                category: "doces",
+                description: "Chocolate com pé de moleque",
+                image: "https://via.placeholder.com/300x300?text=Snickers+P%C3%A9+de+Moleque"
+            },
+            {
+                id: 22,
+                name: "Azedinha",
+                price: 1.50,
+                category: "doces",
+                description: "Bala azeda de diversos sabores",
+                image: "https://via.placeholder.com/300x300?text=Azedinha"
+            }
+        ];
+
+        // Cart and app state
+        let cart = [];
+        let sales = [];
+        let currentCategory = 'all';
+        let editingProductId = null;
+
+        // DOM Elements
+        const productsContainer = document.getElementById('productsContainer');
+        const cartItemsContainer = document.getElementById('cartItemsContainer');
+        const cartModal = document.getElementById('cartModal');
+        const cartButton = document.getElementById('cartButton');
+        const closeCartModal = document.getElementById('closeCartModal');
+        const cartBadge = document.getElementById('cartBadge');
+        const cartSubtotal = document.getElementById('cartSubtotal');
+        const proceedToCheckout = document.getElementById('proceedToCheckout');
+        const customerInfoSection = document.getElementById('customerInfoSection');
+        const paymentSection = document.getElementById('paymentSection');
+        const confirmPurchase = document.getElementById('confirmPurchase');
+        const confirmationModal = document.getElementById('confirmationModal');
+        const closeConfirmationModal = document.getElementById('closeConfirmationModal');
+        const qrcodeContainer = document.getElementById('qrcodeContainer');
+        const totalAmount = document.getElementById('totalAmount');
+        const categoryButtons = document.querySelectorAll('.category-btn');
+        const adminLoginButton = document.getElementById('adminLoginButton');
+        const adminLoginModal = document.getElementById('adminLoginModal');
+        const closeAdminLoginModal = document.getElementById('closeAdminLoginModal');
+        const adminLoginSubmit = document.getElementById('adminLoginSubmit');
+        const adminPanel = document.getElementById('adminPanel');
+        const closeAdminPanel = document.getElementById('closeAdminPanel');
+        const adminLogout = document.getElementById('adminLogout');
+        const adminTabButtons = document.querySelectorAll('.admin-tab-btn');
+        const productsTab = document.getElementById('productsTab');
+        const salesTab = document.getElementById('salesTab');
+        const statsTab = document.getElementById('statsTab');
+        const productsAdminContainer = document.getElementById('productsAdminContainer');
+        const salesTableBody = document.getElementById('salesTableBody');
+        const totalSales = document.getElementById('totalSales');
+        const totalItemsSold = document.getElementById('totalItemsSold');
+        const totalRevenue = document.getElementById('totalRevenue');
+        const addProductBtn = document.getElementById('addProductBtn');
+        const productModal = document.getElementById('productModal');
+        const productModalTitle = document.getElementById('productModalTitle');
+        const productForm = document.getElementById('productForm');
+        const productIdInput = document.getElementById('productId');
+        const productNameInput = document.getElementById('productName');
+        const productPriceInput = document.getElementById('productPrice');
+        const productCategoryInput = document.getElementById('productCategory');
+        const productDescriptionInput = document.getElementById('productDescription');
+        const productImageInput = document.getElementById('productImage');
+        const closeProductModal = document.getElementById('closeProductModal');
+        const cancelProduct = document.getElementById('cancelProduct');
+        const saveProduct = document.getElementById('saveProduct');
+
+        // Initialize the app
+        function init() {
+            renderProducts();
+            setupEventListeners();
+            loadSalesFromLocalStorage();
+            updateStats();
+        }
+
+        // Render products based on current category
+        function renderProducts() {
+            productsContainer.innerHTML = '';
+            
+            const filteredProducts = currentCategory === 'all' 
+                ? products 
+                : products.filter(product => product.category === currentCategory);
+            
+            if (filteredProducts.length === 0) {
+                productsContainer.innerHTML = '<p class="text-gray-500 col-span-full text-center py-8">Nenhum produto encontrado nesta categoria</p>';
+                return;
+            }
+            
+            filteredProducts.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:shadow-lg';
+                productCard.innerHTML = `
+                    <div class="h-48 overflow-hidden">
+                        <img src="${product.image}" alt="${product.name}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-1">${product.name}</h3>
+                        <p class="text-gray-600 text-sm mb-2">${product.description}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-blue-600">R$ ${product.price.toFixed(2)}</span>
+                            <div class="flex items-center space-x-2">
+                                <button class="decrease-btn bg-gray-200 text-gray-800 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-300" data-id="${product.id}">
+                                    <i class="fas fa-minus text-xs"></i>
+                                </button>
+                                <span class="quantity-display text-sm font-medium" data-id="${product.id}">0</span>
+                                <button class="increase-btn bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-blue-700" data-id="${product.id}">
+                                    <i class="fas fa-plus text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                productsContainer.appendChild(productCard);
+            });
+            
+            updateCartQuantityDisplays();
+        }
+
+        // Update quantity displays on product cards
+        function updateCartQuantityDisplays() {
+            document.querySelectorAll('.quantity-display').forEach(display => {
+                const productId = parseInt(display.dataset.id);
+                const cartItem = cart.find(item => item.id === productId);
+                display.textContent = cartItem ? cartItem.quantity : '0';
+            });
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Category filter buttons
+            categoryButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    currentCategory = button.dataset.category;
+                    renderProducts();
+                    
+                    // Update active button style
+                    categoryButtons.forEach(btn => {
+                        btn.classList.remove('bg-blue-200', 'text-blue-800');
+                        btn.classList.add('bg-blue-100', 'text-blue-800');
+                    });
+                    button.classList.remove('bg-blue-100');
+                    button.classList.add('bg-blue-200');
+                });
+            });
+            
+            // Cart button
+            cartButton.addEventListener('click', () => {
+                cartModal.classList.remove('hidden');
+                renderCartItems();
+            });
+            
+            // Close cart modal
+            closeCartModal.addEventListener('click', () => {
+                cartModal.classList.add('hidden');
+            });
+            
+            // Proceed to checkout
+            proceedToCheckout.addEventListener('click', () => {
+                if (cart.length === 0) return;
+                
+                customerInfoSection.classList.remove('hidden');
+                proceedToCheckout.classList.add('hidden');
+                paymentSection.classList.remove('hidden');
+                
+                // Generate PIX QR Code
+                const subtotal = calculateSubtotal();
+                totalAmount.textContent = `R$ ${subtotal.toFixed(2)}`;
+                generateQRCode(subtotal);
+            });
+            
+            // Confirm purchase
+            confirmPurchase.addEventListener('click', () => {
+                const matricula = document.getElementById('matricula').value;
+                const firstName = document.getElementById('firstName').value;
+                
+                if (!matricula || !firstName) {
+                    alert('Por favor, preencha sua matrícula e primeiro nome');
+                    return;
+                }
+                
+                // Record sale
+                const sale = {
+                    date: new Date().toISOString(),
+                    matricula,
+                    firstName,
+                    items: [...cart],
+                    total: calculateSubtotal()
+                };
+                
+                sales.push(sale);
+                saveSalesToLocalStorage();
+                updateStats();
+                
+                // Clear cart
+                cart = [];
+                updateCartBadge();
+                updateCartQuantityDisplays();
+                
+                // Hide cart modal and show confirmation
+                cartModal.classList.add('hidden');
+                customerInfoSection.classList.add('hidden');
+                paymentSection.classList.add('hidden');
+                proceedToCheckout.classList.remove('hidden');
+                document.getElementById('matricula').value = '';
+                document.getElementById('firstName').value = '';
+                
+                // Show confirmation modal
+                confirmationModal.classList.remove('hidden');
+            });
+            
+            // Close confirmation modal
+            closeConfirmationModal.addEventListener('click', () => {
+                confirmationModal.classList.add('hidden');
+            });
+            
+            // Admin login button
+            adminLoginButton.addEventListener('click', () => {
+                adminLoginModal.classList.remove('hidden');
+            });
+            
+            // Close admin login modal
+            closeAdminLoginModal.addEventListener('click', () => {
+                adminLoginModal.classList.add('hidden');
+            });
+            
+            // Admin login submit
+            adminLoginSubmit.addEventListener('click', () => {
+                const email = document.getElementById('adminEmail').value;
+                const password = document.getElementById('adminPassword').value;
+                
+                if (email === 'caene@ene.unb.br' && password === 'Asd@#$93') {
+                    adminLoginModal.classList.add('hidden');
+                    document.getElementById('adminEmail').value = '';
+                    document.getElementById('adminPassword').value = '';
+                    adminPanel.classList.remove('hidden');
+                    renderAdminProducts();
+                    renderSalesTable();
+                } else {
+                    alert('Credenciais incorretas');
+                }
+            });
+            
+            // Close admin panel
+            closeAdminPanel.addEventListener('click', () => {
+                adminPanel.classList.add('hidden');
+            });
+            
+            // Admin logout
+            adminLogout.addEventListener('click', () => {
+                adminPanel.classList.add('hidden');
+            });
+            
+            // Admin tabs
+            adminTabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const tab = button.dataset.tab;
+                    
+                    // Update active tab button
+                    adminTabButtons.forEach(btn => {
+                        btn.classList.remove('bg-gray-700');
+                        btn.classList.add('hover:bg-gray-700');
+                    });
+                    button.classList.add('bg-gray-700');
+                    
+                    // Show selected tab
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    document.getElementById(`${tab}Tab`).classList.add('active');
+                });
+            });
+            
+            // Add product button
+            addProductBtn.addEventListener('click', () => {
+                editingProductId = null;
+                productModalTitle.textContent = 'Adicionar Produto';
+                productForm.reset();
+                productIdInput.value = '';
+                productModal.classList.remove('hidden');
+            });
+            
+            // Close product modal
+            closeProductModal.addEventListener('click', () => {
+                productModal.classList.add('hidden');
+            });
+            
+            // Cancel product edit/add
+            cancelProduct.addEventListener('click', () => {
+                productModal.classList.add('hidden');
+            });
+            
+            // Save product
+            productForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const productData = {
+                    id: editingProductId || Date.now(),
+                    name: productNameInput.value,
+                    price: parseFloat(productPriceInput.value),
+                    category: productCategoryInput.value,
+                    description: productDescriptionInput.value,
+                    image: productImageInput.files.length > 0 
+                        ? URL.createObjectURL(productImageInput.files[0]) 
+                        : 'https://via.placeholder.com/300x300?text=Produto'
+                };
+                
+                if (editingProductId) {
+                    // Update existing product
+                    const index = products.findIndex(p => p.id === editingProductId);
+                    if (index !== -1) {
+                        products[index] = productData;
+                    }
+                } else {
+                    // Add new product
+                    products.push(productData);
+                }
+                
+                renderProducts();
+                renderAdminProducts();
+                productModal.classList.add('hidden');
+            });
+            
+            // Delegate events for product cards (increase/decrease buttons)
+            document.addEventListener('click', (e) => {
+                // Increase quantity
+                if (e.target.classList.contains('increase-btn') || e.target.closest('.increase-btn')) {
+                    const button = e.target.classList.contains('increase-btn') ? e.target : e.target.closest('.increase-btn');
+                    const productId = parseInt(button.dataset.id);
+                    addToCart(productId);
+                }
+                
+                // Decrease quantity
+                if (e.target.classList.contains('decrease-btn') || e.target.closest('.decrease-btn')) {
+                    const button = e.target.classList.contains('decrease-btn') ? e.target : e.target.closest('.decrease-btn');
+                    const productId = parseInt(button.dataset.id);
+                    removeFromCart(productId);
+                }
+            });
+        }
+
+        // Cart functions
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            const cartItem = cart.find(item => item.id === productId);
+            
+            if (cartItem) {
+                cartItem.quantity += 1;
+            } else {
+                cart.push({
+                    id: productId,
+                    name: product.name,
+                    price: product.price,
+                    quantity: 1
+                });
+            }
+            
+            updateCartBadge();
+            updateCartQuantityDisplays();
+        }
+
+        function removeFromCart(productId) {
+            const cartItemIndex = cart.findIndex(item => item.id === productId);
+            
+            if (cartItemIndex !== -1) {
+                const cartItem = cart[cartItemIndex];
+                
+                if (cartItem.quantity > 1) {
+                    cartItem.quantity -= 1;
+                } else {
+                    cart.splice(cartItemIndex, 1);
+                }
+                
+                updateCartBadge();
+                updateCartQuantityDisplays();
+            }
+        }
+
+        function updateCartBadge() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartBadge.textContent = totalItems;
+            
+            if (totalItems > 0) {
+                cartBadge.classList.remove('hidden');
+            } else {
+                cartBadge.classList.add('hidden');
+            }
+        }
+
+        function renderCartItems() {
+            cartItemsContainer.innerHTML = '';
+            
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = '<p class="text-gray-500 text-center py-4">Seu carrinho está vazio</p>';
+                cartSubtotal.textContent = 'R$ 0,00';
+                return;
+            }
+            
+            cart.forEach(item => {
+                const product = products.find(p => p.id === item.id);
+                if (!product) return;
+                
+                const cartItem = document.createElement('div');
+                cartItem.className = 'flex justify-between items-center border-b pb-3';
+                cartItem.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <img src="${product.image}" alt="${product.name}" class="w-16 h-16 object-cover rounded">
+                        <div>
+                            <h4 class="font-medium">${product.name}</h4>
+                            <p class="text-sm text-gray-500">R$ ${product.price.toFixed(2)}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button class="decrease-cart-btn text-gray-500 hover:text-gray-700" data-id="${item.id}">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <span class="font-medium">${item.quantity}</span>
+                        <button class="increase-cart-btn text-gray-500 hover:text-gray-700" data-id="${item.id}">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <span class="font-medium">R$ ${(item.price * item.quantity).toFixed(2)}</span>
+                    </div>
+                `;
+                cartItemsContainer.appendChild(cartItem);
+            });
+            
+            // Add event listeners to cart buttons
+            document.querySelectorAll('.decrease-cart-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const productId = parseInt(button.dataset.id);
+                    removeFromCart(productId);
+                    renderCartItems();
+                });
+            });
+            
+            document.querySelectorAll('.increase-cart-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const productId = parseInt(button.dataset.id);
+                    addToCart(productId);
+                    renderCartItems();
+                });
+            });
+            
+            // Update subtotal
+            const subtotal = calculateSubtotal();
+            cartSubtotal.textContent = `R$ ${subtotal.toFixed(2)}`;
+        }
+
+        function calculateSubtotal() {
+            return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        }
+
+        // Generate QR Code for PIX
+        function generateQRCode(amount) {
+            qrcodeContainer.innerHTML = '';
+            
+            const qr = qrcode(0, 'L');
+            qr.addData(`00020126580014BR.GOV.BCB.PIX0136caene@ene.unb.br5204000053039865404${amount.toFixed(2)}5802BR5925CAENE - UNB6008BRASILIA62070503***6304`);
+            qr.make();
+            
+            const qrImg = qr.createImgTag(4);
+            qrcodeContainer.innerHTML = qrImg;
+        }
+
+        // Admin functions
+        function renderAdminProducts() {
+            productsAdminContainer.innerHTML = '';
+            
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'bg-white rounded-lg shadow-md overflow-hidden';
+                productCard.innerHTML = `
+                    <div class="h-40 overflow-hidden">
+                        <img src="${product.image}" alt="${product.name}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-1">${product.name}</h3>
+                        <p class="text-gray-600 text-sm mb-2">${product.description}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-blue-600">R$ ${product.price.toFixed(2)}</span>
+                            <div class="flex space-x-2">
+                                <button class="edit-product-btn bg-yellow-500 text-white px-3 py-1 rounded text-sm hover:bg-yellow-600" data-id="${product.id}">
+                                    <i class="fas fa-edit mr-1"></i> Editar
+                                </button>
+                                <button class="delete-product-btn bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600" data-id="${product.id}">
+                                    <i class="fas fa-trash mr-1"></i> Excluir
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                productsAdminContainer.appendChild(productCard);
+            });
+            
+            // Add event listeners to edit and delete buttons
+            document.querySelectorAll('.edit-product-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const productId = parseInt(button.dataset.id);
+                    editProduct(productId);
+                });
+            });
+            
+            document.querySelectorAll('.delete-product-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const productId = parseInt(button.dataset.id);
+                    if (confirm('Tem certeza que deseja excluir este produto?')) {
+                        deleteProduct(productId);
+                    }
+                });
+            });
+        }
+
+        function editProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            editingProductId = productId;
+            productModalTitle.textContent = 'Editar Produto';
+            
+            productIdInput.value = product.id;
+            productNameInput.value = product.name;
+            productPriceInput.value = product.price;
+            productCategoryInput.value = product.category;
+            productDescriptionInput.value = product.description;
+            
+            productModal.classList.remove('hidden');
+        }
+
+        function deleteProduct(productId) {
+            const index = products.findIndex(p => p.id === productId);
+            if (index !== -1) {
+                products.splice(index, 1);
+                renderProducts();
+                renderAdminProducts();
+            }
+        }
+
+        function renderSalesTable() {
+            salesTableBody.innerHTML = '';
+            
+            if (sales.length === 0) {
+                salesTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">Nenhuma venda registrada</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            sales.forEach(sale => {
+                const date = new Date(sale.date);
+                const formattedDate = date.toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                const itemsList = sale.items.map(item => 
+                    `${item.name} (${item.quantity}x)`
+                ).join(', ');
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formattedDate}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${sale.firstName}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sale.matricula}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${itemsList}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">R$ ${sale.total.toFixed(2)}</td>
+                `;
+                salesTableBody.appendChild(row);
+            });
+        }
+
+        function updateStats() {
+            // Total sales
+            totalSales.textContent = sales.length;
+            
+            // Total items sold
+            const itemsSold = sales.reduce((sum, sale) => {
+                return sum + sale.items.reduce((itemSum, item) => itemSum + item.quantity, 0);
+            }, 0);
+            totalItemsSold.textContent = itemsSold;
+            
+            // Total revenue
+            const revenue = sales.reduce((sum, sale) => sum + sale.total, 0);
+            totalRevenue.textContent = `R$ ${revenue.toFixed(2)}`;
+        }
+
+        // Local storage functions
+        function saveSalesToLocalStorage() {
+            localStorage.setItem('marketSales', JSON.stringify(sales));
+        }
+
+        function loadSalesFromLocalStorage() {
+            const savedSales = localStorage.getItem('marketSales');
+            if (savedSales) {
+                sales = JSON.parse(savedSales);
+            }
+        }
+
+        // Initialize the app
+        init();
+    </script>
+</body>
+</html>
