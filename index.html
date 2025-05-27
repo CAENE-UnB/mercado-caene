@@ -6,13 +6,23 @@
     <title>Mercado Autônomo CAENE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .gradient-bg {
             background: linear-gradient(135deg, #00b4db, #0083b0, #00b4db);
         }
+        .gradient-bg-new {
+            background: linear-gradient(135deg, #00b4db, #00b4a0, #00db94);
+        }
         .gradient-text {
             background: linear-gradient(135deg, #00b4db, #0083b0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .gradient-text-new {
+            background: linear-gradient(135deg, #00b4db, #00db94);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -64,10 +74,10 @@
     </a>
 
     <!-- Header -->
-    <header class="gradient-bg text-white shadow-lg">
+    <header class="gradient-bg-new text-white shadow-lg">
         <div class="container mx-auto px-4 py-6 flex justify-between items-center">
             <div class="flex items-center space-x-2">
-                <i class="fas fa-store text-3xl"></i>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/1280px-React-icon.svg.png" alt="Logo" class="h-10 w-10">
                 <h1 class="text-2xl font-bold">Mercado CAENE</h1>
             </div>
             <div class="flex items-center space-x-4">
@@ -86,7 +96,7 @@
     <main class="container mx-auto px-4 py-8">
         <!-- Product Categories -->
         <div class="mb-8">
-            <h2 class="text-2xl font-bold gradient-text mb-4">Nossos Produtos</h2>
+            <h2 class="text-2xl font-bold gradient-text-new mb-4">Nossos Produtos</h2>
             <div class="flex space-x-2 overflow-x-auto pb-2">
                 <button class="category-btn px-4 py-2 bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200 transition-colors" data-category="all">
                     Todos
@@ -96,6 +106,12 @@
                 </button>
                 <button class="category-btn px-4 py-2 bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200 transition-colors" data-category="doces">
                     Doces
+                </button>
+                <button class="category-btn px-4 py-2 bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200 transition-colors" data-category="polarizada">
+                    Polarizada
+                </button>
+                <button class="category-btn px-4 py-2 bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200 transition-colors" data-category="artigos">
+                    Artigos CAENE
                 </button>
             </div>
         </div>
@@ -111,7 +127,7 @@
         <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div class="p-6">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-bold gradient-text">Seu Carrinho</h3>
+                    <h3 class="text-xl font-bold gradient-text-new">Seu Carrinho</h3>
                     <button id="closeCartModal" class="text-gray-500 hover:text-gray-700">
                         <i class="fas fa-times"></i>
                     </button>
@@ -145,16 +161,21 @@
                     <div id="paymentSection" class="mt-6 hidden">
                         <h4 class="font-medium mb-2">Pagamento via PIX</h4>
                         <div class="bg-gray-100 p-4 rounded-lg mb-3">
-                            <p class="text-sm text-gray-700 mb-2">Chave PIX: <span class="font-medium">caene@ene.unb.br</span></p>
+                            <div class="flex items-center justify-between mb-2">
+                                <p class="text-sm text-gray-700">Chave PIX: <span class="font-medium">caene@ene.unb.br</span></p>
+                                <button id="copyPixKey" class="text-blue-600 hover:text-blue-800 ml-2">
+                                    <i class="fas fa-copy"></i> Copiar
+                                </button>
+                            </div>
                             <div id="qrcodeContainer" class="flex justify-center mb-3"></div>
                             <p class="text-center font-bold text-lg" id="totalAmount"></p>
                         </div>
-                        <button id="confirmPurchase" class="w-full gradient-bg text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity">
+                        <button id="confirmPurchase" class="w-full gradient-bg-new text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity">
                             Confirmar Compra
                         </button>
                     </div>
                     
-                    <button id="proceedToCheckout" class="w-full gradient-bg text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity mt-4">
+                    <button id="proceedToCheckout" class="w-full gradient-bg-new text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity mt-4">
                         Finalizar Compra
                     </button>
                 </div>
@@ -171,7 +192,7 @@
                 </div>
                 <h3 class="text-lg font-medium text-gray-900 mb-2">Compra realizada com sucesso!</h3>
                 <p class="text-gray-500 mb-6">Agradecemos pela compra!</p>
-                <button id="closeConfirmationModal" class="gradient-bg text-white py-2 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity">
+                <button id="closeConfirmationModal" class="gradient-bg-new text-white py-2 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity">
                     Fechar
                 </button>
             </div>
@@ -182,7 +203,7 @@
     <div id="adminLoginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold gradient-text">Acesso Administrativo</h3>
+                <h3 class="text-xl font-bold gradient-text-new">Acesso Administrativo</h3>
                 <button id="closeAdminLoginModal" class="text-gray-500 hover:text-gray-700">
                     <i class="fas fa-times"></i>
                 </button>
@@ -198,7 +219,7 @@
                     <input type="password" id="adminPassword" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="••••••••">
                 </div>
                 
-                <button id="adminLoginSubmit" class="w-full gradient-bg text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity mt-4">
+                <button id="adminLoginSubmit" class="w-full gradient-bg-new text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity mt-4">
                     Entrar
                 </button>
             </div>
@@ -209,7 +230,7 @@
     <div id="adminPanel" class="fixed inset-0 z-50 hidden">
         <div class="absolute inset-0 admin-panel flex flex-col">
             <div class="bg-white shadow-md p-4 flex justify-between items-center">
-                <h2 class="text-xl font-bold gradient-text">Painel Administrativo</h2>
+                <h2 class="text-xl font-bold gradient-text-new">Painel Administrativo</h2>
                 <button id="closeAdminPanel" class="text-gray-500 hover:text-gray-700">
                     <i class="fas fa-times text-2xl"></i>
                 </button>
@@ -241,8 +262,8 @@
                     <!-- Products Management Tab -->
                     <div id="productsTab" class="tab-content active">
                         <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-2xl font-bold gradient-text">Gerenciamento de Produtos</h3>
-                            <button id="addProductBtn" class="gradient-bg text-white px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity">
+                            <h3 class="text-2xl font-bold gradient-text-new">Gerenciamento de Produtos</h3>
+                            <button id="addProductBtn" class="gradient-bg-new text-white px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity">
                                 <i class="fas fa-plus mr-2"></i> Adicionar Produto
                             </button>
                         </div>
@@ -254,7 +275,17 @@
                     
                     <!-- Sales Management Tab -->
                     <div id="salesTab" class="tab-content">
-                        <h3 class="text-2xl font-bold gradient-text mb-6">Histórico de Vendas</h3>
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-2xl font-bold gradient-text-new">Histórico de Vendas</h3>
+                            <div class="flex space-x-2">
+                                <button id="downloadSalesHistory" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                                    <i class="fas fa-download mr-2"></i> Baixar Histórico
+                                </button>
+                                <button id="clearSalesHistory" class="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors">
+                                    <i class="fas fa-trash mr-2"></i> Limpar Tudo
+                                </button>
+                            </div>
+                        </div>
                         
                         <div class="bg-white shadow rounded-lg overflow-hidden mb-6">
                             <table class="min-w-full divide-y divide-gray-200">
@@ -265,12 +296,13 @@
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matrícula</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Itens</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody id="salesTableBody" class="bg-white divide-y divide-gray-200">
                                     <!-- Sales will be loaded here -->
                                     <tr>
-                                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">Nenhuma venda registrada</td>
+                                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">Nenhuma venda registrada</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -279,7 +311,7 @@
                     
                     <!-- Statistics Tab -->
                     <div id="statsTab" class="tab-content">
-                        <h3 class="text-2xl font-bold gradient-text mb-6">Estatísticas de Vendas</h3>
+                        <h3 class="text-2xl font-bold gradient-text-new mb-6">Estatísticas de Vendas</h3>
                         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                             <div class="bg-white p-6 rounded-lg shadow">
@@ -321,9 +353,8 @@
                         
                         <div class="bg-white p-6 rounded-lg shadow">
                             <h4 class="text-lg font-medium mb-4">Produtos Mais Vendidos</h4>
-                            <div id="topProductsChart" class="h-64">
-                                <!-- Chart will be rendered here -->
-                                <p class="text-gray-500 text-center py-8">Dados insuficientes para exibir o gráfico</p>
+                            <div class="h-64">
+                                <canvas id="topProductsChart"></canvas>
                             </div>
                         </div>
                     </div>
@@ -336,7 +367,7 @@
     <div id="productModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
             <div class="flex justify-between items-center mb-4">
-                <h3 id="productModalTitle" class="text-xl font-bold gradient-text">Adicionar Produto</h3>
+                <h3 id="productModalTitle" class="text-xl font-bold gradient-text-new">Adicionar Produto</h3>
                 <button id="closeProductModal" class="text-gray-500 hover:text-gray-700">
                     <i class="fas fa-times"></i>
                 </button>
@@ -360,6 +391,8 @@
                     <select id="productCategory" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
                         <option value="energeticos">Energético</option>
                         <option value="doces">Doce</option>
+                        <option value="polarizada">Polarizada</option>
+                        <option value="artigos">Artigos CAENE</option>
                     </select>
                 </div>
                 
@@ -378,7 +411,7 @@
                     <button type="button" id="cancelProduct" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-300">
                         Cancelar
                     </button>
-                    <button type="submit" id="saveProduct" class="gradient-bg text-white px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity">
+                    <button type="submit" id="saveProduct" class="gradient-bg-new text-white px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity">
                         Salvar
                     </button>
                 </div>
@@ -387,7 +420,7 @@
     </div>
 
     <script>
-        // Sample product data
+        // Sample product data with real image URLs
         const products = [
             // Energéticos
             {
@@ -396,7 +429,7 @@
                 price: 9.00,
                 category: "energeticos",
                 description: "Sabor original com muita força e energia",
-                image: "https://images.tcdn.com.br/img/img_prod/1224045/energetico_original_monster_473ml_2639_1_d43427fc0da77ef1890cf474da08ca59.jpg"
+                image: "https://m.media-amazon.com/images/I/71w7zUaQOLL._AC_UF1000,1000_QL80_.jpg"
             },
             {
                 id: 2,
@@ -404,7 +437,7 @@
                 price: 9.00,
                 category: "energeticos",
                 description: "Zero calorias e zero açúcar",
-                image: "https://andinacocacola.vtexassets.com/arquivos/ids/155478/70847022206_01.jpg?v=637722480093400000"
+                image: "https://m.media-amazon.com/images/I/71w7zUaQOLL._AC_UF1000,1000_QL80_.jpg"
             },
             {
                 id: 3,
@@ -412,160 +445,66 @@
                 price: 9.00,
                 category: "energeticos",
                 description: "Sabor doce com toque de suco de manga",
-                image: "https://andinacocacola.vtexassets.com/arquivos/ids/157997-800-450?v=638465576871630000&width=800&height=450&aspect=true"
+                image: "https://m.media-amazon.com/images/I/71w7zUaQOLL._AC_UF1000,1000_QL80_.jpg"
             },
             {
                 id: 4,
                 name: "Monster Ultra Watermelon",
                 price: 9.00,
                 category: "energeticos",
-                description: "Sabor intenso de melancia",
-                image: "https://via.placeholder.com/300x300?text=Monster+Ultra+Watermelon"
-            },
-            {
-                id: 5,
-                name: "Monster Pipeline Punch",
-                price: 9.00,
-                category: "energeticos",
-                description: "Goiaba, laranja e maracujá",
-                image: "https://via.placeholder.com/300x300?text=Monster+Pipeline+Punch"
-            },
-            {
-                id: 6,
-                name: "Monster Pacific Punch",
-                price: 9.00,
-                category: "energeticos",
-                description: "Tropical, leve, suave e doce",
-                image: "https://via.placeholder.com/300x300?text=Monster+Pacific+Punch"
+                description: "Savor intenso de melancia",
+                image: "https://m.media-amazon.com/images/I/71w7zUaQOLL._AC_UF1000,1000_QL80_.jpg"
             },
             // Doces
             {
-                id: 7,
+                id: 5,
                 name: "Paçoquinha",
                 price: 1.00,
                 category: "doces",
                 description: "Tradicional doce de amendoim",
-                image: "https://via.placeholder.com/300x300?text=Pa%C3%A7oquinha"
+                image: "https://www.paodeacucar.com/img/uploads/1/247/650247.jpg"
             },
             {
-                id: 8,
+                id: 6,
                 name: "KitKat Dark",
                 price: 4.50,
                 category: "doces",
                 description: "Chocolate amargo com wafer crocante",
-                image: "https://via.placeholder.com/300x300?text=KitKat+Dark"
+                image: "https://www.paodeacucar.com/img/uploads/1/247/650247.jpg"
+            },
+            // Polarizada
+            {
+                id: 7,
+                name: "Camiseta CAENE",
+                price: 45.00,
+                category: "polarizada",
+                description: "Camiseta oficial da CAENE",
+                image: "https://images.tcdn.com.br/img/img_prod/1069836/camiseta_polo_unb_azul_marinho_114_1_20201211170950.jpg"
             },
             {
+                id: 8,
+                name: "Moletom CAENE",
+                price: 80.00,
+                category: "polarizada",
+                description: "Moletom oficial da CAENE",
+                image: "https://images.tcdn.com.br/img/img_prod/1069836/camiseta_polo_unb_azul_marinho_114_1_20201211170950.jpg"
+            },
+            // Artigos CAENE
+            {
                 id: 9,
-                name: "KitKat Tradicional",
-                price: 4.50,
-                category: "doces",
-                description: "Chocolate ao leite com wafer crocante",
-                image: "https://via.placeholder.com/300x300?text=KitKat+Tradicional"
+                name: "Caneca CAENE",
+                price: 25.00,
+                category: "artigos",
+                description: "Caneca personalizada da CAENE",
+                image: "https://images.tcdn.com.br/img/img_prod/1069836/camiseta_polo_unb_azul_marinho_114_1_20201211170950.jpg"
             },
             {
                 id: 10,
-                name: "Jujuba Gumetes",
-                price: 1.50,
-                category: "doces",
-                description: "Sabores: iogurte e frutas",
-                image: "https://via.placeholder.com/300x300?text=Jujuba+Gumetes"
-            },
-            {
-                id: 11,
-                name: "Bis Extra Black",
-                price: 4.50,
-                category: "doces",
-                description: "Chocolate amargo com recheio cremoso",
-                image: "https://via.placeholder.com/300x300?text=Bis+Extra+Black"
-            },
-            {
-                id: 12,
-                name: "Bis Extra",
-                price: 4.50,
-                category: "doces",
-                description: "Chocolate ao leite com recheio cremoso",
-                image: "https://via.placeholder.com/300x300?text=Bis+Extra"
-            },
-            {
-                id: 13,
-                name: "Bom Bom Limão",
-                price: 4.00,
-                category: "doces",
-                description: "Recheio cremoso de limão",
-                image: "https://via.placeholder.com/300x300?text=Bom+Bom+Lim%C3%A3o"
-            },
-            {
-                id: 14,
-                name: "Bom Bom Chocolate",
-                price: 4.00,
-                category: "doces",
-                description: "Recheio de chocolate amargo",
-                image: "https://via.placeholder.com/300x300?text=Bom+Bom+Chocolate"
-            },
-            {
-                id: 15,
-                name: "Bom Bom Maracujá",
-                price: 4.00,
-                category: "doces",
-                description: "Recheio de maracujá",
-                image: "https://via.placeholder.com/300x300?text=Bom+Bom+Maracuj%C3%A1"
-            },
-            {
-                id: 16,
-                name: "Pão de Mel",
-                price: 5.00,
-                category: "doces",
-                description: "Sabor tradicional e café",
-                image: "https://via.placeholder.com/300x300?text=P%C3%A3o+de+Mel"
-            },
-            {
-                id: 17,
-                name: "Geladinho",
-                price: 1.50,
-                category: "doces",
-                description: "Sabores variados",
-                image: "https://via.placeholder.com/300x300?text=Geladinho"
-            },
-            {
-                id: 18,
-                name: "TicTac",
-                price: 4.00,
-                category: "doces",
-                description: "Mix de sabores",
-                image: "https://via.placeholder.com/300x300?text=TicTac"
-            },
-            {
-                id: 19,
-                name: "Snickers",
-                price: 5.00,
-                category: "doces",
-                description: "Chocolate, caramelo e amendoim",
-                image: "https://via.placeholder.com/300x300?text=Snickers"
-            },
-            {
-                id: 20,
-                name: "Snickers Dark",
-                price: 5.00,
-                category: "doces",
-                description: "Chocolate amargo, caramelo e amendoim",
-                image: "https://via.placeholder.com/300x300?text=Snickers+Dark"
-            },
-            {
-                id: 21,
-                name: "Snickers Pé de Moleque",
-                price: 5.00,
-                category: "doces",
-                description: "Chocolate com pé de moleque",
-                image: "https://via.placeholder.com/300x300?text=Snickers+P%C3%A9+de+Moleque"
-            },
-            {
-                id: 22,
-                name: "Azedinha",
-                price: 1.50,
-                category: "doces",
-                description: "Bala azeda de diversos sabores",
-                image: "https://via.placeholder.com/300x300?text=Azedinha"
+                name: "Chaveiro CAENE",
+                price: 10.00,
+                category: "artigos",
+                description: "Chaveiro personalizado da CAENE",
+                image: "https://images.tcdn.com.br/img/img_prod/1069836/camiseta_polo_unb_azul_marinho_114_1_20201211170950.jpg"
             }
         ];
 
@@ -574,6 +513,7 @@
         let sales = [];
         let currentCategory = 'all';
         let editingProductId = null;
+        let topProductsChart = null;
 
         // DOM Elements
         const productsContainer = document.getElementById('productsContainer');
@@ -621,6 +561,10 @@
         const closeProductModal = document.getElementById('closeProductModal');
         const cancelProduct = document.getElementById('cancelProduct');
         const saveProduct = document.getElementById('saveProduct');
+        const copyPixKey = document.getElementById('copyPixKey');
+        const downloadSalesHistory = document.getElementById('downloadSalesHistory');
+        const clearSalesHistory = document.getElementById('clearSalesHistory');
+        const topProductsChartCanvas = document.getElementById('topProductsChart');
 
         // Initialize the app
         function init() {
@@ -628,6 +572,7 @@
             setupEventListeners();
             loadSalesFromLocalStorage();
             updateStats();
+            renderSalesTable();
         }
 
         // Render products based on current category
@@ -747,6 +692,7 @@
                 sales.push(sale);
                 saveSalesToLocalStorage();
                 updateStats();
+                renderSalesTable();
                 
                 // Clear cart
                 cart = [];
@@ -792,6 +738,7 @@
                     adminPanel.classList.remove('hidden');
                     renderAdminProducts();
                     renderSalesTable();
+                    updateStats();
                 } else {
                     alert('Credenciais incorretas');
                 }
@@ -824,6 +771,11 @@
                         content.classList.remove('active');
                     });
                     document.getElementById(`${tab}Tab`).classList.add('active');
+                    
+                    // Render chart when stats tab is selected
+                    if (tab === 'stats') {
+                        renderTopProductsChart();
+                    }
                 });
             });
             
@@ -858,7 +810,7 @@
                     description: productDescriptionInput.value,
                     image: productImageInput.files.length > 0 
                         ? URL.createObjectURL(productImageInput.files[0]) 
-                        : 'https://via.placeholder.com/300x300?text=Produto'
+                        : 'https://www.paodeacucar.com/img/uploads/1/247/650247.jpg'
                 };
                 
                 if (editingProductId) {
@@ -872,9 +824,78 @@
                     products.push(productData);
                 }
                 
+                // Render products in both admin and main page
                 renderProducts();
                 renderAdminProducts();
                 productModal.classList.add('hidden');
+            });
+            
+            // Copy PIX key
+            copyPixKey.addEventListener('click', () => {
+                navigator.clipboard.writeText('caene@ene.unb.br')
+                    .then(() => {
+                        const originalIcon = copyPixKey.innerHTML;
+                        copyPixKey.innerHTML = '<i class="fas fa-check"></i> Copiado!';
+                        setTimeout(() => {
+                            copyPixKey.innerHTML = originalIcon;
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy text: ', err);
+                    });
+            });
+            
+            // Download sales history
+            downloadSalesHistory.addEventListener('click', () => {
+                if (sales.length === 0) {
+                    alert('Nenhuma venda registrada para download');
+                    return;
+                }
+                
+                let csvContent = "Data,Nome,Matrícula,Itens,Total\n";
+                
+                sales.forEach(sale => {
+                    const date = new Date(sale.date);
+                    const formattedDate = date.toLocaleDateString('pt-BR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    
+                    const itemsList = sale.items.map(item => 
+                        `${item.name} (${item.quantity}x)`
+                    ).join(', ');
+                    
+                    csvContent += `${formattedDate},${sale.firstName},${sale.matricula},"${itemsList}",${sale.total.toFixed(2)}\n`;
+                });
+                
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.setAttribute('href', url);
+                link.setAttribute('download', `historico_vendas_${new Date().toISOString().slice(0, 10)}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+            
+            // Clear sales history
+            clearSalesHistory.addEventListener('click', () => {
+                if (sales.length === 0) {
+                    alert('Nenhuma venda registrada para limpar');
+                    return;
+                }
+                
+                if (confirm('Tem certeza que deseja apagar todo o histórico de vendas? Esta ação não pode ser desfeita.')) {
+                    sales = [];
+                    saveSalesToLocalStorage();
+                    updateStats();
+                    renderSalesTable();
+                    renderTopProductsChart();
+                }
             });
             
             // Delegate events for product cards (increase/decrease buttons)
@@ -1099,13 +1120,13 @@
             if (sales.length === 0) {
                 salesTableBody.innerHTML = `
                     <tr>
-                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">Nenhuma venda registrada</td>
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">Nenhuma venda registrada</td>
                     </tr>
                 `;
                 return;
             }
             
-            sales.forEach(sale => {
+            sales.forEach((sale, index) => {
                 const date = new Date(sale.date);
                 const formattedDate = date.toLocaleDateString('pt-BR', {
                     day: '2-digit',
@@ -1126,8 +1147,103 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sale.matricula}</td>
                     <td class="px-6 py-4 text-sm text-gray-500">${itemsList}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">R$ ${sale.total.toFixed(2)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button class="delete-sale-btn text-red-600 hover:text-red-900" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
                 `;
                 salesTableBody.appendChild(row);
+            });
+            
+            // Add event listeners to delete buttons
+            document.querySelectorAll('.delete-sale-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const saleIndex = parseInt(button.dataset.index);
+                    if (confirm('Tem certeza que deseja excluir esta venda?')) {
+                        sales.splice(saleIndex, 1);
+                        saveSalesToLocalStorage();
+                        updateStats();
+                        renderSalesTable();
+                        renderTopProductsChart();
+                    }
+                });
+            });
+        }
+
+        function renderTopProductsChart() {
+            // Destroy previous chart if it exists
+            if (topProductsChart) {
+                topProductsChart.destroy();
+            }
+            
+            // Get top products data
+            const productSales = {};
+            
+            sales.forEach(sale => {
+                sale.items.forEach(item => {
+                    if (!productSales[item.id]) {
+                        const product = products.find(p => p.id === item.id);
+                        if (product) {
+                            productSales[item.id] = {
+                                name: product.name,
+                                quantity: 0
+                            };
+                        }
+                    }
+                    if (productSales[item.id]) {
+                        productSales[item.id].quantity += item.quantity;
+                    }
+                });
+            });
+            
+            // Convert to array and sort by quantity
+            const topProducts = Object.values(productSales)
+                .sort((a, b) => b.quantity - a.quantity)
+                .slice(0, 5);
+            
+            // Prepare chart data
+            const labels = topProducts.map(p => p.name);
+            const data = topProducts.map(p => p.quantity);
+            
+            // Create chart
+            const ctx = document.getElementById('topProductsChart').getContext('2d');
+            topProductsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Quantidade Vendida',
+                        data: data,
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.6)',
+                            'rgba(75, 192, 192, 0.6)',
+                            'rgba(255, 206, 86, 0.6)',
+                            'rgba(153, 102, 255, 0.6)',
+                            'rgba(255, 99, 132, 0.6)'
+                        ],
+                        borderColor: [
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 99, 132, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
             });
         }
 
